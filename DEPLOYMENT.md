@@ -14,18 +14,18 @@
 
 Мне пришлось добавить специальный репозиторий `deadsnakes`, чтобы получить Python 3.10. Делаем так:
 
-\`\`\`bash
+```bash
 sudo apt update
 sudo apt install -y software-properties-common
 sudo add-apt-repository ppa:deadsnakes/ppa
 sudo apt update
-\`\`\`
+```
 
 ### Теперь ставим сам Python 3.10 и все системные штуки
 
 После добавления репозитория, можно смело ставить Python 3.10 и все библиотеки, которые нужны для OpenCV и Pyzbar. Это большой список, но лучше поставить все сразу:
 
-\`\`\`bash
+```bash
 sudo apt install -y python3.10 python3.10-venv python3-dev python3-pip
 sudo apt install -y libzbar0 libzbar-dev
 sudo apt install -y libjpeg-dev libpng-dev libtiff-dev
@@ -34,19 +34,19 @@ sudo apt install -y libgtk2.0-dev libcanberra-gtk-module
 sudo apt install -y libxvidcore-dev libx264-dev
 sudo apt install -y libopenexr-dev libatlas-base-dev
 sudo apt install -y gfortran git
-\`\`\`
+```
 
 ## 3. Создаем отдельного пользователя для бота
 
 Это хорошая практика для безопасности. Бот будет работать под своим пользователем, а не под `root`.
 
-\`\`\`bash
+```bash
 sudo useradd -r -s /bin/false -d /opt/qr-receipt-bot bot
-\`\`\`
+```
 
 ## 4. Создаем папку и кидаем туда файлы бота
 
-\`\`\`bash
+```bash
 # Создаем папку, где будет жить бот
 sudo mkdir -p /opt/qr-receipt-bot
 
@@ -58,13 +58,13 @@ sudo cp -r /tmp/qr-receipt-bot/* /opt/qr-receipt-bot/
 
 # ИЛИ, если ты используешь Git (что удобнее для обновлений):
 # sudo git clone https://github.com/твой-репозиторий.git /opt/qr-receipt-bot
-\`\`\`
+```
 
 ## 5. Настраиваем виртуальное окружение и ставим Python-зависимости
 
 Это самый важный шаг, где мы решаем проблему с `numpy` и `opencv`.
 
-\`\`\`bash
+```bash
 # Переходим в папку бота
 cd /opt/qr-receipt-bot
 
@@ -81,36 +81,36 @@ sudo venv/bin/pip install pyTelegramBotAPI==4.14.0
 
 # Если у тебя есть requirements.txt, можешь использовать его после установки numpy и opencv:
 # sudo venv/bin/pip install -r requirements.txt
-\`\`\`
+```
 
 ## 6. Настраиваем права доступа
 
 Чтобы бот мог читать и писать в свою папку:
 
-\`\`\`bash
+```bash
 sudo chown -R bot:bot /opt/qr-receipt-bot
 sudo chmod +x /opt/qr-receipt-bot/bot.py
-\`\`\`
+```
 
 ## 7. Вставляем токен бота
 
 Открываем конфиг и вставляем свой токен, который получили от @BotFather:
 
-\`\`\`bash
+```bash
 sudo nano /opt/qr-receipt-bot/config.py
 
 # Найди строку BOT_TOKEN и замени её на свой токен:
 # BOT_TOKEN = "твой_реальный_токен_от_BotFather"
-\`\`\`
+```
 
 ## 8. Проверяем, что бот запускается вручную (ОЧЕНЬ ВАЖНО!)
 
 Прежде чем мучиться с `systemd`, убедимся, что бот вообще работает. Если тут будет ошибка, то и `systemd` не поможет.
 
-\`\`\`bash
+```bash
 # Запускаем бота от имени пользователя 'bot' из активированного окружения
 sudo -u bot bash -c "source venv/bin/activate && python bot.py"
-\`\`\`
+```
 Если все хорошо, ты увидишь сообщение "Бот запущен..." и никаких ошибок. Нажми `Ctrl+C`, чтобы остановить его. Если есть ошибки, смотри раздел "Решение распространенных проблем".
 
 ## 9. Создаем systemd сервис
@@ -119,13 +119,13 @@ sudo -u bot bash -c "source venv/bin/activate && python bot.py"
 
 Создаем файл сервиса:
 
-\`\`\`bash
+```bash
 sudo nano /etc/systemd/system/qr-receipt-bot.service
-\`\`\`
+```
 
 Вставляем туда вот это содержимое:
 
-\`\`\`ini
+```ini
 [Unit]
 Description=QR Receipt Telegram Bot
 After=network.target
@@ -157,11 +157,11 @@ CPUQuota=50%
 
 [Install]
 WantedBy=multi-user.target
-\`\`\`
+```
 
 ## 10. Запускаем сервис
 
-\`\`\`bash
+```bash
 # Говорим systemd, что появился новый сервис
 sudo systemctl daemon-reload
 
@@ -173,7 +173,7 @@ sudo systemctl start qr-receipt-bot
 
 # Проверяем статус, чтобы убедиться, что все ОК
 sudo systemctl status qr-receipt-bot
-\`\`\`
+```
 Если все хорошо, ты увидишь `Active: active (running)` зеленым цветом. Поздравляю, бот работает!
 
 ## 11. Как управлять ботом
@@ -181,7 +181,7 @@ sudo systemctl status qr-receipt-bot
 Вот основные команды, которые тебе пригодятся:
 
 ### Основные команды:
-\`\`\`bash
+```bash
 # Запустить бота
 sudo systemctl start qr-receipt-bot
 
@@ -199,10 +199,10 @@ sudo systemctl enable qr-receipt-bot
 
 # Отключить автозапуск бота
 sudo systemctl disable qr-receipt-bot
-\`\`\`
+```
 
 ### Как смотреть логи (если что-то пошло не так):
-\`\`\`bash
+```bash
 # Показать все логи бота
 sudo journalctl -u qr-receipt-bot
 
@@ -217,13 +217,13 @@ sudo journalctl -u qr-receipt-bot --since today
 
 # Показать логи за последний час
 sudo journalctl -u qr-receipt-bot --since "1 hour ago"
-\`\`\`
+```
 
 ## 12. Как обновлять бота
 
 Когда ты внес изменения в код и хочешь обновить бота на сервере:
 
-\`\`\`bash
+```bash
 # Останавливаем бота
 sudo systemctl stop qr-receipt-bot
 
@@ -242,7 +242,7 @@ sudo -u bot /opt/qr-receipt-bot/venv/bin/pip install -r requirements.txt
 
 # Запускаем бота обратно
 sudo systemctl start qr-receipt-bot
-\`\`\`
+```
 
 ## 13. Решение распространенных проблем (что делать, если что-то пошло не так)
 
@@ -255,7 +255,7 @@ sudo systemctl start qr-receipt-bot
 Это та самая проблема с `numpy` и `opencv-python`, которую мы решали.
 1.  **Убедись, что ты точно используешь Python 3.10.** Если нет, вернись к шагу 2.
 2.  **Переустанови зависимости в правильном порядке и с указанными версиями:**
-    \`\`\`bash
+    ```bash
     cd /opt/qr-receipt-bot
     sudo rm -rf venv # Удаляем старое окружение, чтобы начать с чистого листа
     sudo python3.10 -m venv venv # Создаем новое с Python 3.10
@@ -265,10 +265,10 @@ sudo systemctl start qr-receipt-bot
     sudo -u bot /opt/qr-receipt-bot/venv/bin/pip install pyzbar==0.1.9
     sudo -u bot /opt/qr-receipt-bot/venv/bin/pip install pyTelegramBotAPI==4.14.0
     sudo chown -R bot:bot /opt/qr-receipt-bot # Снова права, на всякий случай
-    \`\`\`
+    ```
 
 ### Проблемы с правами доступа:
-\`\`\`bash
+```bash
 sudo chown -R bot:bot /opt/qr-receipt-bot
 sudo chmod +x /opt/qr-receipt-bot/bot.py
-\`\`\`
+```
